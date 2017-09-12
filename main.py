@@ -73,24 +73,24 @@ def APA():
             if "og:title" in i['property']:
                 print(i['content'])
 
-        title = "<br><b>title:</b><br>" + str(title)
+        title = "<br><b>Title:</b><br>" + str(title)
 
         meta_results = ''
 
         #loop over result and adds to it the response
         for i in meta:
             meta_results+=html.escape(str(i))+"<br>"
-        meta_results = "<b>metadata:</b><br>" + meta_results
+        meta_results = "<b>Metadata:</b><br>" + meta_results
 
 
         #find author
         print("[AUTHOR]")
-        author = ''
+        author = 'Not Found'
         for i in soup.findAll('meta',{'name':True}):
             if 'author' in i['name']:
                 print(i['content'])
                 author = i['content']
-                author = "<br><br><b>Author: </b><br>" + author
+        author = "<br><br><b>Authors: </b><br>" + author
 
 
         #find h1 and h2

@@ -21,6 +21,7 @@ def main():
 @app.route('/cite', methods=['GET'])
 def APA():
     error = None
+    response = page #this will be returned to the web page
     if request.method == 'GET':
 
         url=request.args.get('url')
@@ -30,26 +31,36 @@ def APA():
         print(url)
 
         #get the content of the URL
-        response = urllib.request.urlopen(url)
-        #start parsing it with BeautifulSoup
-        soup = BeautifulSoup(response, 'html.parser')
-        #find all instances of <meta> (for metadata) in the code
-        result = soup.find_all("meta")
+        try:
+            source = urllib.request.urlopen(url)
+        except urllib.error.URLError:
+            return response + "Cannot find URL specified."
 
-        results= ''
-        for i in result:
-            print(str(i))
+
+        #start parsing it with BeautifulSoup
+        soup = BeautifulSoup(source, 'html.parser')
+        #find all instances of <meta> (for metadata) in the soup
+        meta = soup.find_all("meta")
+        #find all big headings <h1> in the soup
+        h1 = soup.find_all("h1")
+
+        meta_results = ''
+        h1_results = ''
 
         #loop over result and adds to it the response
-        for i in result:
-            results+=html.escape(str(i))+"<br>"
+        for i in meta:
+            meta_results+=html.escape(str(i))+"<br>"
+        for i in h1:
+            h1_results+=html.escape(str(i))+"<br>"
+
+        response += "<b>metadata:</b><br>" + meta_results + "<br><b>h1:</b><br>" + h1_results
 
 
-        return page + results
+        return response
 
 
     else:
-        return page
+        return response
 
 def parse_url(url):
 

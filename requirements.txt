@@ -1,2 +1,2 @@
 Flask
-BeautifulSoup4
+beautifulscraper

@@ -1,3 +1,24 @@
+'''
+
+APACrawler is a Python 3 Flask web application to automatically crawl a website and cite it in APA 6 style. More styles may be added in the future.
+Copyright (C) 2017  Haoxi Tan
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+'''
+
+
 from flask import Flask,request
 from bs4 import BeautifulSoup
 import datetime
@@ -61,20 +82,26 @@ def APA():
             meta_results+=html.escape(str(i))+"<br>"
         meta_results = "<b>metadata:</b><br>" + meta_results
 
+
         #find author
         print("[AUTHOR]")
+        author = ''
         for i in soup.findAll('meta',{'name':True}):
             if 'author' in i['name']:
                 print(i['content'])
+                author = i['content']
+                author = "<br><br><b>Author: </b><br>" + author
 
-        print("DEBUG:",soup.h1)
-        if soup.h1 != "":
-            h1 =  "<br><br><b>big headers: </b>" + str(soup.h1.string)
 
-        else:
-            h1 = ""
+        #find h1 and h2
+        h1 = ''
+        print('h1:',soup.h1)
+        if soup.h1 != None:
+            h1 =  "<br><br><b>h1: </b><br>" + str(soup.h1.string)
 
-        response += "results for <a href=\"%s\">%s</a>:<br><br>"%(url,url) +  meta_results + title + h1
+
+
+        response += "results for <a href=\"%s\">%s</a>:<br><br>"%(url,url) +  meta_results + title + h1 + author
 
 
         return response

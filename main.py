@@ -41,19 +41,40 @@ def APA():
         soup = BeautifulSoup(source, 'html.parser')
         #find all instances of <meta> (for metadata) in the soup
         meta = soup.find_all("meta")
+
         #find all big headings <h1> in the soup
-        h1 = soup.find_all("h1")
+        #h1 = soup.find_all("h1")
+
+        #find the title
+        title = soup.title.string
+        print('[TITLE]')
+        for i in soup.findAll('meta',{'property':True}):
+            if "og:title" in i['property']:
+                print(i['content'])
+
+        title = "<br><b>title:</b><br>" + str(title)
 
         meta_results = ''
-        h1_results = ''
 
         #loop over result and adds to it the response
         for i in meta:
             meta_results+=html.escape(str(i))+"<br>"
-        for i in h1:
-            h1_results+=html.escape(str(i))+"<br>"
+        meta_results = "<b>metadata:</b><br>" + meta_results
 
-        response += "<b>metadata:</b><br>" + meta_results + "<br><b>h1:</b><br>" + h1_results
+        #find author
+        print("[AUTHOR]")
+        for i in soup.findAll('meta',{'name':True}):
+            if 'author' in i['name']:
+                print(i['content'])
+
+        print("DEBUG:",soup.h1)
+        if soup.h1 != "":
+            h1 =  "<br><br><b>big headers: </b>" + str(soup.h1.string)
+
+        else:
+            h1 = ""
+
+        response += "results for <a href=\"%s\">%s</a>:<br><br>"%(url,url) +  meta_results + title + h1
 
 
         return response

@@ -88,7 +88,7 @@ def cite():
 
         #find h1 and h2
         h1 = ''
-        if soup.h1 != None:
+        if soup.h1.string != None:
             h1 =  "<br><br><b>h1: </b><br>" + str(soup.h1.string)
 
 
@@ -122,26 +122,23 @@ def find_title(soup):
     '''finds the title of the site in the soup'''
     #gets the <title>
     title_tag = soup.title.string
+    print(title_tag)
 
-    og_title = 0
+    og_title = None
     #finds og_title (a property in metatdata used for facebook)
     for i in soup.findAll('meta',{'property':True}):
         if "og:title" in i['property']:
             og_title = i['content']
 
-    try:
-        h1 = soup.h1.string
-    except:
-        h1 = 0
+    
+    h1 = soup.h1.string
 
-    if og_title==0 and h1==0:
-        title = title_tag
-
-    elif og_title==0:
+    if og_title!=None:
+        title = og_title
+    elif h1!=None:
         title = h1
-
     else:
-        title=og_title
+        title=title_tag
         
 
     print("[In find_title] title:",title)

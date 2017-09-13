@@ -27,4 +27,6 @@ links = soup.find_all("a")
 
 for link in links:
     if str(link['href']).startswith("/url?q="):
-        print(link['href'].strip('/url?q=\'\''))
+        link = link['href'].strip('/url?q=\'\'')
+        link = link.replace(link[link.index('&sa')::],'')
+        print(link)

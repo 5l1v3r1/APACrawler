@@ -53,7 +53,7 @@ results for <a href="{{ link }}">{{ link }}</a>:
     <br>
     <b>In Bibliography: </b>
     <br>
-    {{ references }}
+    {{ references|safe }}
 
     <br>
     <br>
@@ -65,6 +65,23 @@ results for <a href="{{ link }}">{{ link }}</a>:
 
 </div>
 
-<br>
 
-<div id="debug" style="visibility: hidden;"> {{ debug|safe }} </div>
+<div id="debug" style="visibility: hidden;">
+
+    <p>
+        <b>Title:</b>
+        <br>
+        {{ title }}
+    </p>
+
+    <p>
+        <b>Authors:</b>
+        <br>
+        {{authors}}
+    </p>
+    
+    <p>
+    {{ debug|safe }} 
+    </p>
+    
+</div>

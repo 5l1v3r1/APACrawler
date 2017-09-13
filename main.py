@@ -44,7 +44,7 @@ def cite():
         
         #parse validity of url
         url=parse_url(url)
-        print(url)
+        print("url:",url)
 
         #get the content of the URL
         try:
@@ -52,23 +52,14 @@ def cite():
         except urllib.error.URLError:
             return render_template("index.html") + "Cannot find URL specified."
 
-
         #start parsing it with BeautifulSoup
         soup = BeautifulSoup(source, 'html.parser')
         #find all instances of <meta> (for metadata) in the soup
         meta = soup.find_all("meta")
 
-        #find all big headings <h1> in the soup
-        #h1 = soup.find_all("h1")
 
         #find the title
-        title = soup.title.string
-        print('[TITLE]')
-        for i in soup.findAll('meta',{'property':True}):
-            if "og:title" in i['property']:
-                print(i['content'])
-
-        title_debug = "<br><b>Title:</b><br>" + str(title)
+        title = find_title(soup)
 
         meta_results = ''
 
@@ -78,76 +69,146 @@ def cite():
         meta_results = "<b>Metadata:</b><br>" + meta_results
 
 
-        #find author
-        print("[AUTHOR]")
-        author = ''
-        for i in soup.findAll('meta',{'name':True}):
-            if 'author' in i['name']:
-                print(i['content'])
-                author = i['content']
-        author_debug = "<br><br><b>Authors: </b><br>" + author
+        #find authors
+        authors_list = find_authors(soup)
+        #author debug info
+        author_debug = ''
+        for author in authors_list:
+            author_debug +=  ", ".join(author) + '\n'
 
 
         #find h1 and h2
         h1 = ''
-        print('h1:',soup.h1)
         if soup.h1 != None:
             h1 =  "<br><br><b>h1: </b><br>" + str(soup.h1.string)
 
 
-        response += meta_results + title_debug + h1 + author_debug
+        response += meta_results + h1
 
 
         #put in APA reference
-        ref,intext = APA_cite(author,"2017",title,url)
+        ref,intext = APA_cite(authors_list,"2017",title,url)
 
 
-
-
-    return render_template('cite.html',debug=response,link=url,references=ref,intext=intext)
+    return render_template('cite.html',
+        debug=response,
+        link=url,
+        references=ref,
+        intext=intext,
+        title=title,
+        authors=author_debug)
 
 
 def parse_url(url):
+    '''This function parses the URL according to what it starts with.'''
 
     if url.startswith("http://")==0 and url.startswith("https://")==0:
         url="http://"+url
 
-    print("[PARSED URL]:",url)
     return url
 
-def APA_cite(author,released_date,title,url):
 
-    authors = author.split(',')
-    for name in authors:
-        if len(name.split())>1:
-            fname=name.split()[0]
-            lname=name.split()[1]
 
-        elif len(name.split())==1:
-            fname=name
-            lname=0
-        else:
-            authors=''
+def find_title(soup):
+    '''finds the title of the site in the soup'''
+    #gets the <title>
+    title_tag = soup.title.string
+
+    og_title = 0
+    #finds og_title (a property in metatdata used for facebook)
+    for i in soup.findAll('meta',{'property':True}):
+        if "og:title" in i['property']:
+            og_title = i['content']
+
+    if og_title != 0:
+        title = og_title
+
+    else:
+        title = title_tag
+
+    print("[In find_title] title:",title)
+
+    return title
+
+
+
+def find_authors(soup):
+    '''find authors in the soup'''
+    authors = 0
+    authors_list = []
+
+    for i in soup.findAll('meta',{'name':True}):
+        if 'author' in i['name']:
+            authors = i['content']
+
+    for author in authors.split(','):   #to cater for multiple authors
+
+        #split the author name by space
+        fullname = author.split() 
+
+        #lastname is the last element of the full name
+        lastname = fullname[-1]
+
+        othernames = fullname[0:-1]
+        #take only the capitalized first character
+        othernames = [ (name.capitalize()[0]+".") for name in othernames]
+
+        #put lastname and othernames(as a bracket separated string) into a list called author
+        author = [lastname, (" ").join(othernames)]
+
+        #append the author to authors_list as a sublist
+        authors_list.append(author)
+
+    return authors_list
+
+
+def APA_cite(authors_list,released_date,title,url):
+    '''use all the given arguments to generate APA bibliography and in-text reference, as well as insert date accessed to current date.'''
+
+    #parse authors
+    i=1
+    authors_str = ''
+    intext_author = ''
+    if 1 < len(authors_list) <= 7:
+        for author in authors_list:
+
+            if i == len(authors_list): #on the last author
+                author_str += "& " + author[0] + ", "+ author[1]
+                intext_author += author[0]
+
+
+            authors_str += author[0]+", "+author[1]+", "
+            i+=1
+            intext_author += author[0] + "&"
+
+    elif len(authors_list) == 1:
+        for author in authors_list:
+            authors_str += author[0] + ", " + author[1]
+
+        intext_author += author[0]
+
+
+
+
 
     #get date accessed
     date_accessed = datetime.date.today()
     date_accessed = date_accessed.strftime("%d %B %Y")
 
     #put into APA format
-    if len(authors) > 0 :
-        if not lname:   #if there is no last name
-            ref = "%s. (%s). %s. Retrieved %s, from %s" %(fname.capitalize(),released_date,title,date_accessed,url)
-            intext = "%s, %s"%(fname,released_date)
+    if authors_str != '':
 
-        else:
-            ref = "%s, %s. (%s). %s. Retrieved %s, from %s" %(lname,fname[0].upper(),released_date,title,date_accessed,url)
-            intext = "%s., %s"%(lname[0].capitalize(),released_date)
+        ref = "%s (%s). <i>%s</i>. Retrieved %s, from %s" %(authors_str,released_date,title,date_accessed,url)
+        intext = "(%s, %s)"%(intext_author,released_date)
 
     else:
-        ref = "%s.(%s). Retrieved %s, from %s" %(title,released_date,date_accessed,url)
+        ref = "<i>%s</i>. (%s). Retrieved %s, from %s" %(title,released_date,date_accessed,url)
         intext = "(\"%s\", %s)"%(title,released_date)
 
     return ref,intext
+
+
+
 
 
 if __name__ == '__main__':

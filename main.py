@@ -119,25 +119,33 @@ def APA_cite(author,released_date,title,url):
 
     authors = author.split(',')
     for name in authors:
-        if len(name.split())>1 and len(name.split())>0:
+        if len(name.split())>1:
             fname=name.split()[0]
             lname=name.split()[1]
 
-        elif len(name.split())==0:
-            authors = 0
+        elif len(name.split())==1:
+            fname=name
+            lname=0
+        else:
+            authors=''
 
     #get date accessed
     date_accessed = datetime.date.today()
     date_accessed = date_accessed.strftime("%d %B %Y")
 
     #put into APA format
-    if authors != 0:
-        ref = "%s, %s. (%s). %s. Retrieved %s, from %s" %(fname,lname,released_date,title,date_accessed,url)
-        intext = "%s., %s"%(lname[0],released_date)
+    if len(authors) > 0 :
+        if not lname:   #if there is no last name
+            ref = "%s. (%s). %s. Retrieved %s, from %s" %(fname.capitalize(),released_date,title,date_accessed,url)
+            intext = "%s, %s"%(fname,released_date)
+
+        else:
+            ref = "%s, %s. (%s). %s. Retrieved %s, from %s" %(lname,fname[0].upper(),released_date,title,date_accessed,url)
+            intext = "%s., %s"%(lname[0].capitalize(),released_date)
 
     else:
         ref = "%s.(%s). Retrieved %s, from %s" %(title,released_date,date_accessed,url)
-        intext = "\"%s\", %s"%(title,released_date)
+        intext = "(\"%s\", %s)"%(title,released_date)
 
     return ref,intext
 

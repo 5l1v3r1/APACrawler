@@ -88,7 +88,7 @@ def cite():
 
         #find h1 and h2
         h1 = ''
-        if soup.h1.string != None:
+        if soup.h1 != None:
             h1 =  "<br><br><b>h1: </b><br>" + str(soup.h1.string)
 
 
@@ -130,12 +130,14 @@ def find_title(soup):
         if "og:title" in i['property']:
             og_title = i['content']
 
-    
-    h1 = soup.h1.string
+    try:
+        h1 = soup.h1.string
+    except:
+        h1 = None
 
-    if og_title!=None:
+    if og_title!=None and og_title!=' ':
         title = og_title
-    elif h1!=None:
+    elif h1!=None and h1!=' ':
         title = h1
     else:
         title=title_tag

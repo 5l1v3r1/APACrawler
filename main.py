@@ -148,7 +148,9 @@ def find_authors(soup):
 
     for i in soup.findAll('meta',{'name':True}):
         if 'author' in i['name']:
-            authors .append(i['content'])
+            authors.append(i['content'])
+        if 'DC.Creator' in i['name']:
+            authors.append(i['content'])
 
     for author in authors:   #to cater for multiple authors
 

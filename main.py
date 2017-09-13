@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 '''
 
 
-from flask import Flask,request
+from flask import Flask,request,render_template
 from bs4 import BeautifulSoup
 import datetime
 import urllib
@@ -29,20 +29,15 @@ import html
 app = Flask(__name__) #initiates Flask app
 
 
-#default page
-page = open("templates/default.html","r").read()
-
-
 @app.route('/') #route is the 'directory'
 def main():
-    #returns that page
-    return page
+    return render_template("index.html")
 
 
 @app.route('/cite', methods=['GET'])
-def APA():
+def cite():
     error = None
-    response = page #this will be returned to the web page
+    response = '' #this will be the server's response to add to the template
     if request.method == 'GET':
 
         url=request.args.get('url')
@@ -55,7 +50,7 @@ def APA():
         try:
             source = urllib.request.urlopen(url)
         except urllib.error.URLError:
-            return response + "Cannot find URL specified."
+            return render_template("index.html") + "Cannot find URL specified."
 
 
         #start parsing it with BeautifulSoup
@@ -73,7 +68,7 @@ def APA():
             if "og:title" in i['property']:
                 print(i['content'])
 
-        title = "<br><b>Title:</b><br>" + str(title)
+        title_debug = "<br><b>Title:</b><br>" + str(title)
 
         meta_results = ''
 
@@ -85,12 +80,12 @@ def APA():
 
         #find author
         print("[AUTHOR]")
-        author = 'Not Found'
+        author = ''
         for i in soup.findAll('meta',{'name':True}):
             if 'author' in i['name']:
                 print(i['content'])
                 author = i['content']
-        author = "<br><br><b>Authors: </b><br>" + author
+        author_debug = "<br><br><b>Authors: </b><br>" + author
 
 
         #find h1 and h2
@@ -100,15 +95,17 @@ def APA():
             h1 =  "<br><br><b>h1: </b><br>" + str(soup.h1.string)
 
 
-
-        response += "results for <a href=\"%s\">%s</a>:<br><br>"%(url,url) +  meta_results + title + h1 + author
-
-
-        return response
+        response += meta_results + title_debug + h1 + author_debug
 
 
-    else:
-        return response
+        #put in APA reference
+        ref,intext = APA_cite(author,"2017",title,url)
+
+
+
+
+    return render_template('index.html',debug=response,link=url,references=ref,intext=intext)
+
 
 def parse_url(url):
 
@@ -118,7 +115,31 @@ def parse_url(url):
     print("[PARSED URL]:",url)
     return url
 
+def APA_cite(author,released_date,title,url):
 
+    authors = author.split(',')
+    for name in authors:
+        if len(name.split())>1 and len(name.split())>0:
+            fname=name.split()[0]
+            lname=name.split()[1]
+
+        elif len(name.split())==0:
+            authors = 0
+
+    #get date accessed
+    date_accessed = datetime.date.today()
+    date_accessed = date_accessed.strftime("%d %B %Y")
+
+    #put into APA format
+    if authors != 0:
+        ref = "%s, %s. (%s). %s. Retrieved %s, from %s" %(fname,lname,released_date,title,date_accessed,url)
+        intext = "%s., %s"%(lname[0],released_date)
+
+    else:
+        ref = "%s.(%s). Retrieved %s, from %s" %(title,released_date,date_accessed,url)
+        intext = "\"%s\", %s"%(title,released_date)
+
+    return ref,intext
 
 
 if __name__ == '__main__':

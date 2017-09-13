@@ -1,2 +1,5 @@
 - tidy up code
 - add publisher crawling and citing
+- handle names properly in APA
+
+- add cookie support (multiple references at once) -- another branch

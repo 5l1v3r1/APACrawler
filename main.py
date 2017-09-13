@@ -104,7 +104,7 @@ def cite():
 
 
 
-    return render_template('index.html',debug=response,link=url,references=ref,intext=intext)
+    return render_template('cite.html',debug=response,link=url,references=ref,intext=intext)
 
 
 def parse_url(url):

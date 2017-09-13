@@ -7,20 +7,6 @@
     <meta name="keywords" content="APA,cite,autocite,reference,apa">
     <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
 
-    <script>
-
-        function ToggleGeekMode() {
-            if(document.getElementById("debug").style.visibility=='hidden')
-                document.getElementById("debug").style.visibility='visible';
-            else if (document.getElementById("debug").style.visibility=='visible')
-                document.getElementById("debug").style.visibility='hidden';
-
-        }
-
-
-
-    </script>
-
 
 </head>
 
@@ -43,28 +29,3 @@
 
 </form>
 
-<button onclick=ToggleGeekMode()>Toggle Geek Mode</button>
-
-<br><br>
-results for <a href="{{ link }}">{{ link }}</a>:
-<br><br>
-
-    <div id="references">
-    <br>
-    <b>In Biblography: </b>
-    <br>
-    {{ references }}
-
-    <br>
-    <br>
-
-    <b>In text:</b>
-    <br>
-    {{ intext }}
-    <br>
-
-</div>
-
-<br>
-
-<div id="debug" style="visibility: hidden;"> {{ debug|safe }} </div>

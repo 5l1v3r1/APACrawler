@@ -1,0 +1,70 @@
+<title>APACrawler</title>
+
+<head>
+    <meta name="author" content="Haoxi Tan">
+    <meta name="description" content="the APA auto citer 
+    powered by Python 3 and Flask">
+    <meta name="keywords" content="APA,cite,autocite,reference,apa">
+    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+
+    <script>
+
+        function ToggleGeekMode() {
+            if(document.getElementById("debug").style.visibility=='hidden')
+                document.getElementById("debug").style.visibility='visible';
+            else if (document.getElementById("debug").style.visibility=='visible')
+                document.getElementById("debug").style.visibility='hidden';
+
+        }
+
+
+
+    </script>
+
+
+</head>
+
+<header>
+    <h1>APACrawler</h1>
+
+    <p>
+    Welcome to APACrawler, the APA auto citer 
+    powered by Python 3 and Flask!
+    </p>
+    <p> Author: Haoxi Tan <a href="https://github.com/h74n/APACrawler">https://github.com/h74n/APACrawler</a>
+
+</header>
+
+<form method="GET" action="/cite">
+
+        <input type="text" name="url">
+
+        <input type="submit" value="Cite">
+
+</form>
+
+<button onclick=ToggleGeekMode()>Toggle Geek Mode</button>
+
+<br><br>
+results for <a href="{{ link }}">{{ link }}</a>:
+<br><br>
+
+    <div id="references">
+    <br>
+    <b>In Biblography: </b>
+    <br>
+    {{ references }}
+
+    <br>
+    <br>
+
+    <b>In text:</b>
+    <br>
+    {{ intext }}
+    <br>
+
+</div>
+
+<br>
+
+<div id="debug" style="visibility: hidden;"> {{ debug|safe }} </div>

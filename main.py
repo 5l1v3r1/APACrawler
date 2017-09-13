@@ -120,11 +120,20 @@ def find_title(soup):
         if "og:title" in i['property']:
             og_title = i['content']
 
-    if og_title != 0:
-        title = og_title
+    try:
+        h1 = soup.h1.string
+    except:
+        h1 = 0
+
+    if og_title==0 and h1==0:
+        title = title_tag
+
+    elif og_title==0:
+        title = h1
 
     else:
-        title = title_tag
+        title=og_title
+        
 
     print("[In find_title] title:",title)
 
@@ -134,14 +143,14 @@ def find_title(soup):
 
 def find_authors(soup):
     '''find authors in the soup'''
-    authors = 0
+    authors = []
     authors_list = []
 
     for i in soup.findAll('meta',{'name':True}):
         if 'author' in i['name']:
-            authors = i['content']
+            authors .append(i['content'])
 
-    for author in authors.split(','):   #to cater for multiple authors
+    for author in authors:   #to cater for multiple authors
 
         #split the author name by space
         fullname = author.split() 

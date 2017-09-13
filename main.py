@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 from flask import Flask,request,render_template
 from bs4 import BeautifulSoup
-import datetime
+import datetime, time
 import urllib
 import html
 
@@ -48,7 +48,12 @@ def cite():
 
         #get the content of the URL
         try:
-            source = urllib.request.urlopen(url)
+            opener = urllib.request.build_opener()
+            urllib.request.install_opener(opener)
+            #set useragent to mozilla
+            opener.addheaders = [('User-Agent', 'Mozilla/5.0')]
+            source = opener.open(url)
+
         except urllib.error.URLError:
             return render_template("index.html") + "Cannot find URL specified."
 
@@ -77,6 +82,10 @@ def cite():
             author_debug +=  ", ".join(author) + '\n'
 
 
+        #find date
+        date = find_date(soup)
+
+
         #find h1 and h2
         h1 = ''
         if soup.h1 != None:
@@ -87,7 +96,7 @@ def cite():
 
 
         #put in APA reference
-        ref,intext = APA_cite(authors_list,"2017",title,url)
+        ref,intext = APA_cite(authors_list,date,title,url)
 
 
     return render_template('cite.html',
@@ -173,8 +182,32 @@ def find_authors(soup):
     return authors_list
 
 
-def APA_cite(authors_list,released_date,title,url):
-    '''use all the given arguments to generate APA bibliography and in-text reference, as well as insert date accessed to current date.'''
+
+def find_date(soup):
+    '''
+    finds published date in the soup
+    Crawls based on different possible date tags
+    '''
+
+    date = ''
+    tags = ['created', 'DC.date', 'dcterms.issued','date.modified','content_updated']
+
+    for i in soup.findAll('meta',{'name':True}):
+        for tag in tags:
+            if i['name'] == tag:
+                date = i['content']
+
+    if date != '':
+        #returns date in a list as the usual format is YYYY-MM-DD
+        return time.strptime(date,"%Y-%b-%d")
+    else:
+        return 1
+
+
+def APA_cite(authors_list,date,title,url):
+    '''
+    use all the given arguments to generate APA bibliography and in-text reference, as well as insert date accessed to current date.
+    '''
 
     #parse authors
     i=1
@@ -199,8 +232,13 @@ def APA_cite(authors_list,released_date,title,url):
         intext_author += author[0]
 
 
-
-
+    #parse date published
+    if not date:
+        date_released = date.strftime("%Y, %B %d")
+        year_released = date.strftime("%Y")
+    else:
+        date_released = "n.d."
+        year_released = "n.d."
 
     #get date accessed
     date_accessed = datetime.date.today()
@@ -209,12 +247,12 @@ def APA_cite(authors_list,released_date,title,url):
     #put into APA format
     if authors_str != '':
 
-        ref = "%s (%s). <i>%s</i>. Retrieved %s, from %s" %(authors_str,released_date,title,date_accessed,url)
-        intext = "(%s, %s)"%(intext_author,released_date)
+        ref = "%s (%s). <i>%s</i>. Retrieved %s, from %s" %(authors_str,date_released,title,date_accessed,url)
+        intext = "(%s, %s)"%(intext_author,year_released)
 
     else:
-        ref = "<i>%s</i>. (%s). Retrieved %s, from %s" %(title,released_date,date_accessed,url)
-        intext = "(\"%s\", %s)"%(title,released_date)
+        ref = "<i>%s</i>. (%s). Retrieved %s, from %s" %(title,date_released,date_accessed,url)
+        intext = "(\"%s\", %s)"%(title,year_released)
 
     return ref,intext
 

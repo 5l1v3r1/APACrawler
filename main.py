@@ -130,15 +130,9 @@ def find_title(soup):
         if "og:title" in i['property']:
             og_title = i['content']
 
-    try:
-        h1 = soup.h1.string
-    except:
-        h1 = None
-
     if og_title!=None and og_title!=' ':
         title = og_title
-    elif h1!=None and h1!=' ':
-        title = h1
+
     else:
         title=title_tag
         

@@ -65,6 +65,7 @@ def cite():
 
         #find the title
         title = find_title(soup)
+        title_debug = soup.title.string
 
         meta_results = ''
 
@@ -104,7 +105,7 @@ def cite():
         link=url,
         references=ref,
         intext=intext,
-        title=title,
+        title_debug=title_debug,
         authors=author_debug)
 
 

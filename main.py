@@ -79,8 +79,10 @@ def cite():
         authors_list = find_authors(soup)
         #author debug info
         author_debug = ''
-        for author in authors_list:
-            author_debug +=  ", ".join(author) + '\n'
+        print(authors_list)
+        if authors_list != 1:
+            for author in authors_list:
+                author_debug +=  ", ".join(author) + '\n'
 
 
         #find date
@@ -174,20 +176,26 @@ def find_authors(soup):
         #split the author name by space
         fullname = author.split() 
 
-        #lastname is the last element of the full name
-        lastname = fullname[-1]
+        if len(fullname) > 0:
+            #lastname is the last element of the full name
+            lastname = fullname[-1]
 
-        othernames = fullname[0:-1]
-        #take only the capitalized first character
-        othernames = [ (name.capitalize()[0]+".") for name in othernames]
+            othernames = fullname[0:-1]
+            #take only the capitalized first character
+            othernames = [ (name.capitalize()[0]+".") for name in othernames]
 
-        #put lastname and othernames(as a bracket separated string) into a list called author
-        author = [lastname, (" ").join(othernames)]
+            #put lastname and othernames(as a bracket separated string) into a list called author
+            author = [lastname, (" ").join(othernames)]
 
-        #append the author to authors_list as a sublist
-        authors_list.append(author)
+            #append the author to authors_list as a sublist
+            authors_list.append(author)
+        
+    if authors_list != None:
+        return authors_list
+    else:
+        return 1
 
-    return authors_list
+
 
 
 
@@ -221,23 +229,24 @@ def APA_cite(authors_list,date,title,url):
     i=1
     authors_str = ''
     intext_author = ''
-    if 1 < len(authors_list) <= 7:
-        for author in authors_list:
+    if authors_list != 1:
+        if 1 < len(authors_list) <= 7:
+            for author in authors_list:
 
-            if i == len(authors_list): #on the last author
-                author_str += "& " + author[0] + ", "+ author[1]
-                intext_author += author[0]
+                if i == len(authors_list): #on the last author
+                    author_str += "& " + author[0] + ", "+ author[1]
+                    intext_author += author[0]
 
 
-            authors_str += author[0]+", "+author[1]+", "
-            i+=1
-            intext_author += author[0] + "&"
+                authors_str += author[0]+", "+author[1]+", "
+                i+=1
+                intext_author += author[0] + "&"
 
-    elif len(authors_list) == 1:
-        for author in authors_list:
-            authors_str += author[0] + ", " + author[1]
+        elif len(authors_list) == 1:
+            for author in authors_list:
+                authors_str += author[0] + ", " + author[1]
 
-        intext_author += author[0]
+            intext_author += author[0]
 
 
     #parse date published

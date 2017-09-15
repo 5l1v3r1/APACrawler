@@ -1,3 +1,4 @@
+- tidy up code
 - add itemprop="datePublished" to date crawling
 - add publisher crawling and citing
 

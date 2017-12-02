@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 '''
 
 APACrawler is a Python 3 Flask web application to automatically crawl a website and cite it in APA 6 style. More styles may be added in the future.
